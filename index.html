@@ -114,6 +114,8 @@
 </div>
 
 <script>
+    let uploadedFileName = "GxyennDev.js"; // Nama default file jika tidak ada file yang diunggah
+
     function encryptCode() {
         let input = document.getElementById("inputCode").value.trim();
         let loadingBar = document.getElementById("loadingBar");
@@ -178,20 +180,21 @@
         });
     }
 
-    // Fungsi untuk download hasil enkripsi
+    // Fungsi untuk download hasil enkripsi dengan nama file yang sesuai
     function downloadCode() {
         let output = document.getElementById("outputCode").textContent;
         let blob = new Blob([output], { type: "text/javascript" });
         let link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.download = "encrypted.js";
+        link.download = uploadedFileName; // Nama file sesuai dengan file yang diupload atau default jika tidak ada
         link.click();
     }
 
-    // Fungsi untuk membaca file yang diunggah
+    // Fungsi untuk membaca file yang diunggah dan menyimpan namanya
     document.getElementById("fileInput").addEventListener("change", function(event) {
         let file = event.target.files[0];
         if (file) {
+            uploadedFileName = file.name; // Simpan nama file
             let reader = new FileReader();
             reader.onload = function(e) {
                 document.getElementById("inputCode").value = e.target.result;
