@@ -1,196 +1,205 @@
-<!DOCTYPE html>  <html lang="id">  
-<head>  
-    <meta charset="UTF-8">  
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
-    <title>JavaScript Encrypter - Gxyenn</title>  
-    <style>  
-        body {  
-            background-color: #121212;  
-            color: white;  
-            font-family: Arial, sans-serif;  
-            text-align: center;  
-            padding: 20px;  
-        }  
-        .container {  
-            max-width: 500px;  
-            margin: auto;  
-            background: #1e1e1e;  
-            padding: 20px;  
-            border-radius: 10px;  
-            box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.2);  
-        }  
-        textarea {  
-            width: 100%;  
-            height: 100px;  
-            background: #252525;  
-            color: #0f0;  
-            border: none;  
-            padding: 10px;  
-            border-radius: 5px;  
-            margin-bottom: 10px;  
-            resize: none;  
-        }  
-        input[type="file"] {  
-            display: block;  
-            margin: 10px auto;  
-            color: white;  
-            text-align: center;  
-        }  
-        button {  
-            background: #ff5722;  
-            color: white;  
-            border: none;  
-            padding: 10px 20px;  
-            font-size: 16px;  
-            cursor: pointer;  
-            border-radius: 5px;  
-            width: 100%;  
-            margin-top: 10px;  
-        }  
-        button:hover {  
-            background: #e64a19;  
-        }  
-        .output {  
-            background: #333;  
-            padding: 10px;  
-            border-radius: 5px;  
-            margin-top: 10px;  
-            white-space: pre-wrap;  
-            text-align: left;  
-            word-wrap: break-word;  
-            font-size: 14px;  
-            overflow-x: auto;  
-            max-height: 150px;  
-        }  
-        .loading-bar {  
-            width: 0%;  
-            height: 5px;  
-            background: #ff5722;  
-            margin-top: 10px;  
-            border-radius: 5px;  
-        }  
-        .hidden {  
-            display: none;  
-        }  
-        .error-message {  
-            background: #ff3b30;  
-            color: white;  
-            padding: 10px;  
-            margin-top: 10px;  
-            border-radius: 5px;  
-            font-size: 16px;  
-            display: none;  
-        }  
-        .footer {  
-            margin-top: 20px;  
-            font-size: 12px;  
-            opacity: 0.7;  
-        }  
-        .footer a {  
-            color: #ff5722;  
-            text-decoration: none;  
-        }  
-    </style>  
-</head>  
-<body>  
-<h1>JavaScript Encrypter</h1>  
-<p>Ubah kode JavaScript agar lebih sulit untuk dibaca.</p>  <div class="container">  
-    <input type="file" id="fileInput">  
-    <textarea id="inputCode" placeholder="Masukkan kode JavaScript..."></textarea>  
-    <button onclick="encryptCode()">[ StrtEnc ]</button>  
-    <div class="loading-bar hidden" id="loadingBar"></div>  
-    <div class="error-message" id="errorMessage">Tolong gunakan file lain/teks JavaScript lain, karena ini tidak bisa dienkripsi!</div>  
-    <pre class="output hidden" id="outputCode"></pre>  
-    <button id="copyButton" class="hidden" onclick="copyCode()">Salin</button>  
-    <button id="downloadButton" class="hidden" onclick="downloadCode()">Download</button>  
-</div>  <div class="footer">  
-    Dibuat oleh <b>Gxyenn</b> |   
-    <a href="https://whatsapp.com/channel/0029Vap5nJh2UPBDIc9bja1s" target="_blank">Saluran Dev</a>  
-</div>  <script>  
-    function encryptCode() {  
-        let input = document.getElementById("inputCode").value.trim();  
-        let loadingBar = document.getElementById("loadingBar");  
-        let outputCode = document.getElementById("outputCode");  
-        let copyButton = document.getElementById("copyButton");  
-        let downloadButton = document.getElementById("downloadButton");  
-        let errorMessage = document.getElementById("errorMessage");  
-  
-        // Reset tampilan  
-        loadingBar.style.width = "0%";  
-        loadingBar.classList.remove("hidden");  
-        outputCode.classList.add("hidden");  
-        copyButton.classList.add("hidden");  
-        downloadButton.classList.add("hidden");  
-        errorMessage.style.display = "none"; // Sembunyikan error message  
-  
-        // Pastikan input tidak kosong  
-        if (!input) {  
-            showErrorMessage();  
-            return;  
-        }  
-  
-        // Tentukan durasi loading berdasarkan panjang kode (maksimal 5 detik)  
-        let loadTime = Math.min(5000, input.length * 10);  
-  
-        // Animasi progress bar  
-        let startTime = Date.now();  
-        function updateProgressBar() {  
-            let elapsed = Date.now() - startTime;  
-            let progress = Math.min((elapsed / loadTime) * 100, 100);  
-            loadingBar.style.width = progress + "%";  
-            if (elapsed < loadTime) {  
-                requestAnimationFrame(updateProgressBar);  
-            }  
-        }  
-        updateProgressBar();  
-  
-        setTimeout(() => {  
-            // Encode Base64 + Escape Characters  
-            let encrypted = `eval(atob(unescape('${escape(btoa(input))}')));`;  
-            outputCode.textContent = encrypted;  
-            outputCode.classList.remove("hidden");  
-            copyButton.classList.remove("hidden");  
-            downloadButton.classList.remove("hidden");  
-            loadingBar.classList.add("hidden");  
-        }, loadTime);  
-    }  
-  
-    function showErrorMessage() {  
-        let errorMessage = document.getElementById("errorMessage");  
-        errorMessage.style.display = "block";  
-        setTimeout(() => {  
-            errorMessage.style.display = "none";  
-        }, 5000);  
-    }  
-  
-    // Fungsi untuk menyalin kode hasil  
-    function copyCode() {  
-        let output = document.getElementById("outputCode").textContent;  
-        navigator.clipboard.writeText(output).then(() => {  
-            alert("Kode berhasil disalin!");  
-        });  
-    }  
-  
-    // Fungsi untuk download hasil enkripsi  
-    function downloadCode() {  
-        let output = document.getElementById("outputCode").textContent;  
-        let blob = new Blob([output], { type: "text/javascript" });  
-        let link = document.createElement("a");  
-        link.href = URL.createObjectURL(blob);  
-        link.download = "encrypted.js";  
-        link.click();  
-    }  
-  
-    // Fungsi untuk membaca file yang diunggah  
-    document.getElementById("fileInput").addEventListener("change", function(event) {  
-        let file = event.target.files[0];  
-        if (file) {  
-            let reader = new FileReader();  
-            reader.onload = function(e) {  
-                document.getElementById("inputCode").value = e.target.result;  
-            };  
-            reader.readAsText(file);  
-        }  
-    });  
-</script>  </body>  
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Encrypter - Gxyenn</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 500px;
+            margin: auto;
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.2);
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            background: #252525;
+            color: #0f0;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            resize: none;
+        }
+        input[type="file"] {
+            display: block;
+            margin: 10px auto;
+            color: white;
+            text-align: center;
+        }
+        button {
+            background: #ff5722;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            width: 100%;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #e64a19;
+        }
+        .output {
+            background: #333;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            text-align: left;
+            word-wrap: break-word;
+            font-size: 14px;
+            overflow-x: auto;
+            max-height: 150px;
+        }
+        .loading-bar {
+            width: 0%;
+            height: 5px;
+            background: #ff5722;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+        .hidden {
+            display: none;
+        }
+        .error-message {
+            background: #ff3b30;
+            color: white;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            font-size: 16px;
+            display: none;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+        .footer a {
+            color: #ff5722;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+<h1>JavaScript Encrypter</h1>
+<p>Ubah kode JavaScript agar lebih sulit untuk dibaca.</p>
+
+<div class="container">
+    <input type="file" id="fileInput">
+    <textarea id="inputCode" placeholder="Masukkan kode JavaScript..."></textarea>
+    <button onclick="encryptCode()">[ StrtEnc ]</button>
+    <div class="loading-bar hidden" id="loadingBar"></div>
+    <div class="error-message" id="errorMessage">Tolong gunakan file lain/teks JavaScript lain, karena ini tidak bisa dienkripsi!</div>
+    <pre class="output hidden" id="outputCode"></pre>
+    <button id="copyButton" class="hidden" onclick="copyCode()">Salin</button>
+    <button id="downloadButton" class="hidden" onclick="downloadCode()">Download</button>
+</div>
+
+<div class="footer">
+    Dibuat oleh <b>Gxyenn</b> | 
+    <a href="https://whatsapp.com/channel/0029Vap5nJh2UPBDIc9bja1s" target="_blank">Saluran Dev</a>
+</div>
+
+<script>
+    function encryptCode() {
+        let input = document.getElementById("inputCode").value.trim();
+        let loadingBar = document.getElementById("loadingBar");
+        let outputCode = document.getElementById("outputCode");
+        let copyButton = document.getElementById("copyButton");
+        let downloadButton = document.getElementById("downloadButton");
+        let errorMessage = document.getElementById("errorMessage");
+
+        // Reset tampilan
+        loadingBar.style.width = "0%";
+        loadingBar.classList.remove("hidden");
+        outputCode.classList.add("hidden");
+        copyButton.classList.add("hidden");
+        downloadButton.classList.add("hidden");
+        errorMessage.style.display = "none"; // Sembunyikan error message
+
+        // Pastikan input tidak kosong
+        if (!input) {
+            showErrorMessage();
+            return;
+        }
+
+        // Tentukan durasi loading berdasarkan panjang kode (maksimal 5 detik)
+        let loadTime = Math.min(5000, input.length * 10);
+
+        // Animasi progress bar
+        let startTime = Date.now();
+        function updateProgressBar() {
+            let elapsed = Date.now() - startTime;
+            let progress = Math.min((elapsed / loadTime) * 100, 100);
+            loadingBar.style.width = progress + "%";
+            if (elapsed < loadTime) {
+                requestAnimationFrame(updateProgressBar);
+            }
+        }
+        updateProgressBar();
+
+        setTimeout(() => {
+            // Encode Base64 + Escape Characters
+            let encrypted = `eval(atob(unescape('${escape(btoa(input))}')));`;
+            outputCode.textContent = encrypted;
+            outputCode.classList.remove("hidden");
+            copyButton.classList.remove("hidden");
+            downloadButton.classList.remove("hidden");
+            loadingBar.classList.add("hidden");
+        }, loadTime);
+    }
+
+    function showErrorMessage() {
+        let errorMessage = document.getElementById("errorMessage");
+        errorMessage.style.display = "block";
+        setTimeout(() => {
+            errorMessage.style.display = "none";
+        }, 5000);
+    }
+
+    // Fungsi untuk menyalin kode hasil
+    function copyCode() {
+        let output = document.getElementById("outputCode").textContent;
+        navigator.clipboard.writeText(output).then(() => {
+            alert("Kode berhasil disalin!");
+        });
+    }
+
+    // Fungsi untuk download hasil enkripsi
+    function downloadCode() {
+        let output = document.getElementById("outputCode").textContent;
+        let blob = new Blob([output], { type: "text/javascript" });
+        let link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "encrypted.js";
+        link.click();
+    }
+
+    // Fungsi untuk membaca file yang diunggah
+    document.getElementById("fileInput").addEventListener("change", function(event) {
+        let file = event.target.files[0];
+        if (file) {
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById("inputCode").value = e.target.result;
+            };
+            reader.readAsText(file);
+        }
+    });
+</script>
+
+</body>
 </html>
