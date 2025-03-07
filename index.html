@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JavaScript Decrypter - Gxyenn</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/esprima/4.0.1/esprima.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/escodegen/2.0.0/escodegen.min.js"></script>
+    <title>JavaScript Encrypter - Gxyenn</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/javascript-obfuscator/2.19.2/javascript-obfuscator.browser.min.js"></script>
     <style>
         body {
             background-color: #121212;
@@ -65,24 +64,7 @@
             overflow-x: auto;
             max-height: 150px;
         }
-        .loading-bar {
-            width: 0%;
-            height: 5px;
-            background: #ff5722;
-            margin-top: 10px;
-            border-radius: 5px;
-            transition: width 0.1s linear;
-        }
         .hidden {
-            display: none;
-        }
-        .error-message {
-            background: #ff3b30;
-            color: white;
-            padding: 10px;
-            margin-top: 10px;
-            border-radius: 5px;
-            font-size: 16px;
             display: none;
         }
         .footer {
@@ -97,15 +79,13 @@
     </style>
 </head>
 <body>
-<h1>JavaScript Decrypter</h1>
-<p>Gunakan ini untuk membuka kode JavaScript yang telah dienkripsi.</p>
+<h1>JavaScript Encrypter</h1>
+<p>Gunakan ini untuk mengenkripsi kode JavaScript agar sulit dibaca.</p>
 
 <div class="container">
     <input type="file" id="fileInput">
-    <textarea id="inputCode" placeholder="Masukkan kode enkripsi..."></textarea>
-    <button onclick="decryptCode()">[ OPEN ENC ]</button>
-    <div class="loading-bar hidden" id="loadingBar"></div>
-    <div class="error-message" id="errorMessage">Kode ini tidak valid untuk didekripsi!</div>
+    <textarea id="inputCode" placeholder="Masukkan kode yang ingin dienkripsi..."></textarea>
+    <button onclick="encryptCode()">[ ENCRYPT JS ]</button>
     <pre class="output hidden" id="outputCode"></pre>
     <button id="copyButton" class="hidden" onclick="copyCode()">Salin</button>
     <button id="downloadButton" class="hidden" onclick="downloadCode()">Download</button>
@@ -117,68 +97,38 @@
 </div>
 
 <script>
-    let uploadedFileName = "GxyennDev.js"; // Nama default file jika tidak ada file yang diunggah
+    let uploadedFileName = "Encrypted.js"; // Nama default file setelah enkripsi
 
-    function decryptCode() {
+    function encryptCode() {
         let input = document.getElementById("inputCode").value.trim();
-        let loadingBar = document.getElementById("loadingBar");
         let outputCode = document.getElementById("outputCode");
         let copyButton = document.getElementById("copyButton");
         let downloadButton = document.getElementById("downloadButton");
-        let errorMessage = document.getElementById("errorMessage");
-
-        // Reset tampilan
-        loadingBar.style.width = "0%";
-        loadingBar.classList.remove("hidden");
-        outputCode.classList.add("hidden");
-        copyButton.classList.add("hidden");
-        downloadButton.classList.add("hidden");
-        errorMessage.style.display = "none";
 
         // Pastikan input tidak kosong
         if (!input) {
-            showErrorMessage();
+            alert("Masukkan kode JavaScript terlebih dahulu!");
             return;
         }
 
-        // Tentukan durasi loading berdasarkan panjang teks (maksimal 7 detik)
-        let loadTime = Math.min(7000, input.length * 8);
+        try {
+            // Proses enkripsi menggunakan JavaScript Obfuscator
+            let obfuscatedCode = JavaScriptObfuscator.obfuscate(input, {
+                compact: true,
+                controlFlowFlattening: true,
+                numbersToExpressions: true,
+                stringArray: true,
+                stringArrayEncoding: ['rc4'],
+                stringArrayThreshold: 1
+            }).getObfuscatedCode();
 
-        // Animasi progress bar
-        let startTime = Date.now();
-        function updateProgressBar() {
-            let elapsed = Date.now() - startTime;
-            let progress = Math.min((elapsed / loadTime) * 100, 100);
-            loadingBar.style.width = progress + "%";
-            if (elapsed < loadTime) {
-                requestAnimationFrame(updateProgressBar);
-            }
+            outputCode.textContent = obfuscatedCode;
+            outputCode.classList.remove("hidden");
+            copyButton.classList.remove("hidden");
+            downloadButton.classList.remove("hidden");
+        } catch (e) {
+            alert("Terjadi kesalahan saat mengenkripsi kode!");
         }
-        updateProgressBar();
-
-        setTimeout(() => {
-            try {
-                // Proses deobfuscation menggunakan Esprima dan Escodegen
-                let ast = esprima.parseScript(input);
-                let deobfuscated = escodegen.generate(ast, { format: { indent: { style: '  ' } } });
-
-                outputCode.textContent = deobfuscated;
-                outputCode.classList.remove("hidden");
-                copyButton.classList.remove("hidden");
-                downloadButton.classList.remove("hidden");
-                loadingBar.classList.add("hidden");
-            } catch (e) {
-                showErrorMessage();
-            }
-        }, loadTime);
-    }
-
-    function showErrorMessage() {
-        let errorMessage = document.getElementById("errorMessage");
-        errorMessage.style.display = "block";
-        setTimeout(() => {
-            errorMessage.style.display = "none";
-        }, 5000);
     }
 
     function copyCode() {
@@ -200,7 +150,7 @@
     document.getElementById("fileInput").addEventListener("change", function(event) {
         let file = event.target.files[0];
         if (file) {
-            uploadedFileName = file.name;
+            uploadedFileName = "Encrypted_" + file.name;
             let reader = new FileReader();
             reader.onload = function(e) {
                 document.getElementById("inputCode").value = e.target.result;
@@ -211,4 +161,4 @@
 </script>
 
 </body>
-    </html>
+</html>
