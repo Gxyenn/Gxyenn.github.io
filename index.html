@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JavaScript Encrypter - Gxyenn</title>
+    <title>JavaScript Decrypter - Gxyenn</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/esprima/4.0.1/esprima.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/escodegen/2.0.0/escodegen.min.js"></script>
     <style>
         body {
             background-color: #121212;
@@ -95,15 +97,15 @@
     </style>
 </head>
 <body>
-<h1>JavaScript Encrypter</h1>
-<p>Ubah kode JavaScript agar lebih sulit untuk dibaca.</p>
+<h1>JavaScript Decrypter</h1>
+<p>Gunakan ini untuk membuka kode JavaScript yang telah dienkripsi.</p>
 
 <div class="container">
     <input type="file" id="fileInput">
-    <textarea id="inputCode" placeholder="Masukkan kode JavaScript..."></textarea>
-    <button onclick="encryptCode()">[ START ]</button>
+    <textarea id="inputCode" placeholder="Masukkan kode enkripsi..."></textarea>
+    <button onclick="decryptCode()">[ OPEN ENC ]</button>
     <div class="loading-bar hidden" id="loadingBar"></div>
-    <div class="error-message" id="errorMessage">Tolong gunakan file lain/teks JavaScript lain, karena ini tidak bisa dienkripsi!</div>
+    <div class="error-message" id="errorMessage">Kode ini tidak valid untuk didekripsi!</div>
     <pre class="output hidden" id="outputCode"></pre>
     <button id="copyButton" class="hidden" onclick="copyCode()">Salin</button>
     <button id="downloadButton" class="hidden" onclick="downloadCode()">Download</button>
@@ -117,7 +119,7 @@
 <script>
     let uploadedFileName = "GxyennDev.js"; // Nama default file jika tidak ada file yang diunggah
 
-    function encryptCode() {
+    function decryptCode() {
         let input = document.getElementById("inputCode").value.trim();
         let loadingBar = document.getElementById("loadingBar");
         let outputCode = document.getElementById("outputCode");
@@ -131,7 +133,7 @@
         outputCode.classList.add("hidden");
         copyButton.classList.add("hidden");
         downloadButton.classList.add("hidden");
-        errorMessage.style.display = "none"; // Sembunyikan error message
+        errorMessage.style.display = "none";
 
         // Pastikan input tidak kosong
         if (!input) {
@@ -155,13 +157,19 @@
         updateProgressBar();
 
         setTimeout(() => {
-            // Encode Base64 + Escape Characters
-            let encrypted = `eval(atob(unescape('${escape(btoa(input))}')));`;
-            outputCode.textContent = encrypted;
-            outputCode.classList.remove("hidden");
-            copyButton.classList.remove("hidden");
-            downloadButton.classList.remove("hidden");
-            loadingBar.classList.add("hidden");
+            try {
+                // Proses deobfuscation menggunakan Esprima dan Escodegen
+                let ast = esprima.parseScript(input);
+                let deobfuscated = escodegen.generate(ast, { format: { indent: { style: '  ' } } });
+
+                outputCode.textContent = deobfuscated;
+                outputCode.classList.remove("hidden");
+                copyButton.classList.remove("hidden");
+                downloadButton.classList.remove("hidden");
+                loadingBar.classList.add("hidden");
+            } catch (e) {
+                showErrorMessage();
+            }
         }, loadTime);
     }
 
@@ -173,7 +181,6 @@
         }, 5000);
     }
 
-    // Fungsi untuk menyalin kode hasil
     function copyCode() {
         let output = document.getElementById("outputCode").textContent;
         navigator.clipboard.writeText(output).then(() => {
@@ -181,21 +188,19 @@
         });
     }
 
-    // Fungsi untuk download hasil enkripsi dengan nama file yang sesuai
     function downloadCode() {
         let output = document.getElementById("outputCode").textContent;
         let blob = new Blob([output], { type: "text/javascript" });
         let link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.download = uploadedFileName; // Nama file sesuai dengan file yang diupload atau default jika tidak ada
+        link.download = uploadedFileName;
         link.click();
     }
 
-    // Fungsi untuk membaca file yang diunggah dan menyimpan namanya
     document.getElementById("fileInput").addEventListener("change", function(event) {
         let file = event.target.files[0];
         if (file) {
-            uploadedFileName = file.name; // Simpan nama file
+            uploadedFileName = file.name;
             let reader = new FileReader();
             reader.onload = function(e) {
                 document.getElementById("inputCode").value = e.target.result;
