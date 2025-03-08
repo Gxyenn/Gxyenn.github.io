@@ -85,7 +85,7 @@
 <div class="container">
     <input type="file" id="fileInput">
     <textarea id="inputCode" placeholder="Masukkan kode yang ingin dienkripsi..."></textarea>
-    <button onclick="encryptCode()">[ ENCRYPT JS ]</button>
+    <button onclick="encryptCode()">[ START ]</button>
     <pre class="output hidden" id="outputCode"></pre>
     <button id="copyButton" class="hidden" onclick="copyCode()">Salin</button>
     <button id="downloadButton" class="hidden" onclick="downloadCode()">Download</button>
@@ -113,21 +113,30 @@
 
         try {
             // Proses enkripsi menggunakan JavaScript Obfuscator
-            let obfuscatedCode = JavaScriptObfuscator.obfuscate(input, {
+            let obfuscationResult = JavaScriptObfuscator.obfuscate(input, {
                 compact: true,
                 controlFlowFlattening: true,
+                controlFlowFlatteningThreshold: 0.75,
                 numbersToExpressions: true,
+                simplify: true,
                 stringArray: true,
                 stringArrayEncoding: ['rc4'],
                 stringArrayThreshold: 1
-            }).getObfuscatedCode();
+            });
+
+            if (!obfuscationResult || !obfuscationResult.getObfuscatedCode) {
+                throw new Error("Obfuscation gagal!");
+            }
+
+            let obfuscatedCode = obfuscationResult.getObfuscatedCode();
 
             outputCode.textContent = obfuscatedCode;
             outputCode.classList.remove("hidden");
             copyButton.classList.remove("hidden");
             downloadButton.classList.remove("hidden");
         } catch (e) {
-            alert("Terjadi kesalahan saat mengenkripsi kode!");
+            console.error(e);
+            alert("Terjadi kesalahan saat mengenkripsi kode! Silakan coba lagi.");
         }
     }
 
